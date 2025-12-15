@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <title>응급실 정보 조회</title>
+  <style>
+    body { font-family: Arial, sans-serif; background:white; margin:0; }
+    .box {
+      width: 420px; margin: 90px auto; background:white;
+      border:1px solid white; border-radius:10px; padding:26px;
+    }
+    h2 { margin:0 0 18px 0; }
+    label { display:block; margin:12px 0 6px; font-size:14px; }
+    select {
+      width:100%; padding:10px; font-size:14px;
+      border:1px solid white; border-radius:8px;
+    }
+    button {
+      width:100%; margin-top:18px; padding:11px;
+      background:blue; color:white; border:none; border-radius:8px;
+      font-size:15px; cursor:pointer;
+    }
+    button:hover { background:blue; }
+    .hint { margin-top:10px; color:grey; font-size:12px; }
+  </style>
+</head>
+<body>
+
+<div class="box">
+  <h2>🏥 응급실 정보 조회</h2>
+
+  <form action="/search" method="get">
+    <label for="stage1">시 / 도</label>
+    <select id="stage1" name="stage1" onchange="updateStage2()"></select>
+
+    <label for="stage2">시 / 군 / 구</label>
+    <select id="stage2" name="stage2"></select>
+
+    <button type="submit">검색</button>
+    <div class="hint">※ “전체”는 해당 시/도의 전체 지역을 의미합니다.</div>
+  </form>
+</div>
+
+<script>
+  const regionMap = {
+    "서울특별시": ["전체","강남구","용산구","성동구","서초구","종로구"],
+    "인천광역시": ["전체","부평구","연수구","계양구"],
+    "경기도": ["전체","부천시","광명시","김포시"],
+    "충청북도": ["전체","충주시"],
+    "충청남도": ["전체","논산시"],
+    "세종특별자치시": ["전체","세종시"],
+    "전라남도": ["전체","목포시"],
+
+    "경상남도": ["전체","김해시"],
+  };
+
+  function loadStage1() {
+    const stage1 = document.getElementById("stage1");
+    stage1.innerHTML = "";
+    Object.keys(regionMap).forEach(sido => {
+      const opt = document.createElement("option");
+      opt.value = sido;
+      opt.text = sido;
+      stage1.appendChild(opt);
+    });
+  }
+
+  function updateStage2() {
+    const stage1Val = document.getElementById("stage1").value;
+    const stage2 = document.getElementById("stage2");
+    stage2.innerHTML = "";
+
+    regionMap[stage1Val].forEach(name => {
+      const opt = document.createElement("option");
+
+      
+      if (name === "전체") {
+        opt.value = "";
+        opt.text = "전체";
+      } else {
+        opt.value = name;
+        opt.text = name;
+      }
+
+      stage2.appendChild(opt);
+    });
+  }
+
+
+  loadStage1();
+  updateStage2();
+</script>
+
+</body>
+</html>

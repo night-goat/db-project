@@ -1,95 +1,110 @@
 import requests
 import sqlite3
-from datetime import datetime
 import xml.etree.ElementTree as ET
 
-# ------------------------------
+# ==============================
 # DB 연결
-# ------------------------------
-conn = sqlite3.connect("emergency.db")
-cursor = conn.cursor()
+# ==============================
+conn = sqlite3.connect("db/emergency.db")
+cur = conn.cursor()
 
-# ------------------------------
-# OpenAPI 요청
-# ------------------------------
-url = "http://apis.data.go.kr/B552657/ErmctInfoInqireService/getEmrrmRltmUsefulSckbdInfoInqire"
+# ==============================
+# API 정보
+# ==============================
+URL = "http://apis.data.go.kr/B552657/ErmctInfoInqireService/getEmrrmRltmUsefulSckbdInfoInqire"
+SERVICE_KEY = "54a210e62143f356fa795088187d6e979f466fb935ce200d83ee264183b0e084"
 
-params = {
-    "serviceKey": "54a210e62143f356fa795088187d6e979f466fb935ce200d83ee264183b0e084",
-    "STAGE1": "서울특별시",
-    "STAGE2": "강남구",
-    "pageNo": 1,
-    "numOfRows": 100
+# ==============================
+# 지역 설정 (과제용 최소 지역)
+# ==============================
+region = {
+    "서울특별시": ["강남구", "용산구", "성동구", "서초구", "종로구"],
+    "인천광역시": ["부평구", "연수구", "계양구"],
+    "경기도": ["부천시", "광명시", "김포시"],
+    "충청북도": ["충주시"],
+    "충청남도": ["논산시"],
+    "세종특별자치시": ["세종시"],
+    "전라남도": ["목포시"],
+    "경상남도": ["김해시"]
 }
 
-res = requests.get(url, params=params)
-
-# ------------------------------
-# XML 파싱
-# ------------------------------
-root = ET.fromstring(res.text)
-items = root.findall(".//item")
-
-# ------------------------------
-# int 변환 함수
-# ------------------------------
-def to_int(v, default=0):
-    if v is None:
-        return default
-    s = str(v).strip()
-    if s == "":
-        return default
+# ==============================
+# 안전한 int 변환 함수
+# ==============================
+def to_int(value, default=0):
     try:
-        return int(s)
+        return int(value)
     except:
         return default
 
-# ------------------------------
-# DB 저장
-# ------------------------------
-for item in items:
-    hpid = item.findtext("hpid")
-    dutyname = item.findtext("dutyName")
-    dutytel3 = item.findtext("dutyTel3")
+# ==============================
+# 지역별 API 호출
+# ==============================
+for stage1, stage2_list in region.items():
+    for stage2 in stage2_list:
 
-    hvec = to_int(item.findtext("hvec"))
-    hvcc = to_int(item.findtext("hvcc"))
-    hvncc = to_int(item.findtext("hvncc"))
-    hvccc = to_int(item.findtext("hvccc"))
-    hvicc = to_int(item.findtext("hvicc"))
+        params = {
+            "serviceKey": SERVICE_KEY,
+            "STAGE1": stage1,
+            "STAGE2": stage2,
+            "pageNo": 1,
+            "numOfRows": 100
+        }
 
-    # 병원 기본 정보
-    cursor.execute(
-        """
-        INSERT OR IGNORE INTO HOSPITAL
-        (hpid, dutyname, stage1, stage2, dutytel3)
-        VALUES (?, ?, ?, ?, ?)
-        """,
-        (hpid, dutyname, params["STAGE1"], params["STAGE2"], dutytel3)
-    )
+        response = requests.get(URL, params=params)
+        root = ET.fromstring(response.text)
+        items = root.findall(".//item")
 
-    # 응급실 병상 정보
-    cursor.execute(
-        """
-        INSERT INTO BedStatus
-        (hpid, hvec, hvidate)
-        VALUES (?, ?, ?)
-        """,
-        (hpid, hvec, datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
-    )
+        for item in items:
+            # --------------------------
+            # 기본 병원 정보
+            # --------------------------
+            hpid = item.findtext("hpid")
+            dutyname = item.findtext("dutyName")
+            dutytel3 = item.findtext("dutyTel3")
 
-    # 중증질환 병상 정보
-    cursor.execute(
-        """
-        INSERT OR REPLACE INTO SevereCare
-        (hpid, hvcc, hvncc, hvccc, hvicc)
-        VALUES (?, ?, ?, ?, ?)
-        """,
-        (hpid, hvcc, hvncc, hvccc, hvicc)
-    )
+            # --------------------------
+            # 병상 정보 (최신)
+            # --------------------------
+            hvec = to_int(item.findtext("hvec"))
+            hvidate = item.findtext("hvidate")
 
-# ------------------------------
-# 종료
-# ------------------------------
+            # --------------------------
+            # 중증 환자 정보 (최신)
+            # --------------------------
+            hvcc  = to_int(item.findtext("hvcc"))
+            hvncc = to_int(item.findtext("hvncc"))
+            hvicc = to_int(item.findtext("hvicc"))
+
+            # --------------------------
+            # HOSPITAL 테이블 (덮어쓰기)
+            # --------------------------
+            cur.execute("""
+                INSERT OR REPLACE INTO HOSPITAL
+                (hpid, dutyname, stage1, stage2, dutytel3)
+                VALUES (?, ?, ?, ?, ?)
+            """, (hpid, dutyname, stage1, stage2, dutytel3))
+
+            # --------------------------
+            # BedStatus 테이블 (병원당 1행)
+            # --------------------------
+            cur.execute("""
+                INSERT OR REPLACE INTO BedStatus
+                (hpid, hvec, hvidate)
+                VALUES (?, ?, ?)
+            """, (hpid, hvec, hvidate))
+
+            # --------------------------
+            # SevereCare 테이블 (병원당 1행)
+            # --------------------------
+            cur.execute("""
+                INSERT OR REPLACE INTO SevereCare
+                (hpid, hvcc, hvncc, hvicc)
+                VALUES (?, ?, ?, ?)
+            """, (hpid, hvcc, hvncc, hvicc))
+
+# ==============================
+# 마무리
+# ==============================
 conn.commit()
 conn.close()
