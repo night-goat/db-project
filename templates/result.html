@@ -1,35 +1,56 @@
 <!DOCTYPE html>
-<html>
+<html lang="ko">
 <head>
-    <meta charset="utf-8">
-    <title>검색 결과</title>
+  <meta charset="utf-8">
+  <title>강남구 응급실 현황</title>
+
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <style>
+    body {
+      background-color: #f8f9fa;
+    }
+  </style>
 </head>
+
 <body>
-    <h1>강남구 응급실 현황</h1>
+<div class="container mt-4">
+  <h2 class="mb-3">강남구 응급실 현황</h2>
 
-    <table border="1">
-        <tr>
-            <th>병원명</th>
-            <th>전화번호</th>
-            <th>응급실 병상</th>
-            <th>신경중환자</th>
-            <th>신생아중환자</th>
-            <th>일반중환자</th>
-        </tr>
+  {% for h in hospitals %}
+  <div class="card mb-3">
+    <div class="card-body">
+      <h5 class="mb-1">{{ h["dutyname"] }}</h5>
+      <p class="text-muted mb-3">📞 {{ h["dutytel3"] }}</p>
 
-        {% for h in hospitals %}
-        <tr>
-            <td>{{ h["dutyname"] }}</td>
-            <td>{{ h["dutytel3"] }}</td>
-            <td>{{ h["hvec"] }}</td>
-            <td>{{ h["hvcc"] }}</td>
-            <td>{{ h["hvncc"] }}</td>
-            <td>{{ h["hvicc"] }}</td>
-        </tr>
-        {% endfor %}
-    </table>
+      <div class="row text-center">
+        <div class="col">
+          <div class="text-muted">응급실 병상</div>
+          <div class="fs-4 fw-bold">{{ h["hvec"] }}</div>
+        </div>
 
-    <br>
-    <a href="/">← 돌아가기</a>
+        <div class="col">
+          <div class="text-muted">신경중환자</div>
+          <div class="fs-4 fw-bold">{{ h["hvcc"] }}</div>
+        </div>
+
+        <div class="col">
+          <div class="text-muted">신생아중환자</div>
+          <div class="fs-4 fw-bold">{{ h["hvncc"] }}</div>
+        </div>
+
+        <div class="col">
+          <div class="text-muted">일반중환자</div>
+          <div class="fs-4 fw-bold">{{ h["hvicc"] }}</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+  {% endfor %}
+
+  <a href="/" class="btn btn-link">← 돌아가기</a>
+</div>
 </body>
 </html>
