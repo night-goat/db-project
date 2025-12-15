@@ -11,13 +11,13 @@ def get_db():
 
 @app.route("/")
 def index():
-    # 일단 버튼만 있는 페이지
+    
     return render_template("index.html")
 
 
 @app.route("/search")
 def search():
-    # 🔥 하드코딩 검색 (지금 단계 핵심)
+    
     stage1 = "서울특별시"
     stage2 = "강남구"
 
@@ -29,6 +29,7 @@ def search():
         H.dutyname,
         H.dutytel3,
         B.hvec,
+        B.hvidate,
         S.hvcc,
         S.hvncc,
         S.hvicc
