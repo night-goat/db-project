@@ -61,7 +61,24 @@ def search():
         hospitals=hospitals,
         stage2=title_region
     )
+@app.route("/top5")
+def top5():
+    conn = get_db()
+    cur = conn.cursor()
 
+    cur.execute("""
+        SELECT H.dutyname, H.dutytel3,
+               B.hvec, B.hvidate
+        FROM HOSPITAL H, BedStatus B
+        WHERE H.hpid = B.hpid
+        ORDER BY B.hvec DESC
+        LIMIT 5
+    """)
+
+    hospitals = cur.fetchall()
+    conn.close()
+
+    return render_template("top5.html", hospitals=hospitals)
 
 if __name__ == "__main__":
     app.run(debug=True)
