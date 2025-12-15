@@ -11,42 +11,69 @@
       margin: 30px;
     }
 
-    h2 { margin-bottom: 20px; }
+    h2 {
+      margin-bottom: 20px;
+    }
 
     .hospital {
       border-left: 6px solid blue;
       padding: 15px;
       margin-bottom: 20px;
-      background-color: white;
+      background-color: rgb(216, 216, 216);
     }
 
     .hospital-name {
       font-size: 18px;
       font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    .addr {
+      font-size: 13px;
+      color: gray;
+      margin-bottom: 5px;
     }
 
     .phone {
       font-size: 14px;
       color: gray;
-      margin-bottom: 8px;
+      margin-bottom: 10px;
     }
 
     .beds {
       font-size: 16px;
-      margin-top: 8px;
+      font-weight: bold;
+    }
+
+    .update-time {
+      font-size: 12px;
+      color: gray;
+      margin-top: 5px;
     }
   </style>
 </head>
 
 <body>
 
-<h2>🟦 잔여 응급실 병상 TOP 5</h2>
+<h2>🏆 잔여 응급실 병상 TOP 5</h2>
 
 {% for h in hospitals %}
 <div class="hospital">
   <div class="hospital-name">🏥 {{ h["dutyname"] }}</div>
+
+  <div class="addr">📍 {{ h["dutyaddr"] }}</div>
+
   <div class="phone">📞 {{ h["dutytel3"] }}</div>
-  <div class="beds">🛏 잔여 응급실 병상: <b>{{ h["hvec"] }}</b></div>
+
+  <div class="beds">
+    🛏 잔여 응급실 병상: {{ h["hvec"] }}
+  </div>
+
+  <div class="update-time">
+    ⏱ 기준 시각:
+    {{ h["hvidate"][0:4] }}-{{ h["hvidate"][4:6] }}-{{ h["hvidate"][6:8] }}
+    {{ h["hvidate"][8:10] }}:{{ h["hvidate"][10:12] }}
+  </div>
 </div>
 {% endfor %}
 
