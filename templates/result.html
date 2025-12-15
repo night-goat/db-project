@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>검색 결과</title>
+</head>
+<body>
+    <h1>강남구 응급실 현황</h1>
+
+    <table border="1">
+        <tr>
+            <th>병원명</th>
+            <th>전화번호</th>
+            <th>응급실 병상</th>
+            <th>신경중환자</th>
+            <th>신생아중환자</th>
+            <th>일반중환자</th>
+        </tr>
+
+        {% for h in hospitals %}
+        <tr>
+            <td>{{ h["dutyname"] }}</td>
+            <td>{{ h["dutytel3"] }}</td>
+            <td>{{ h["hvec"] }}</td>
+            <td>{{ h["hvcc"] }}</td>
+            <td>{{ h["hvncc"] }}</td>
+            <td>{{ h["hvicc"] }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <br>
+    <a href="/">← 돌아가기</a>
+</body>
+</html>
