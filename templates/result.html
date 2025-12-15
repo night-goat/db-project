@@ -19,7 +19,7 @@
       border-left: 6px solid blue;
       padding: 15px;
       margin-bottom: 20px;
-      background-color: white;
+      background-color: rgb(216, 216, 216);
     }
 
     .hospital-name {
@@ -62,14 +62,20 @@
   <div class="phone">📞 {{ h["dutytel3"] }}</div>
 
   <div class="update-time">
-    ⏱ 기준 시각: {{ h["hvidate"] }}
+    ⏱ 기준 시각:
+    {{ h["hvidate"][0:4] }}-{{ h["hvidate"][4:6] }}-{{ h["hvidate"][6:8] }}
+    {{ h["hvidate"][8:10] }}:{{ h["hvidate"][10:12] }}
   </div>
 
   <div class="info">
+    <div style="font-weight:bold; margin-bottom:6px;">
+    📊 수용 가능 병상 현황
+    </div>
+
     <div>🛏 응급실 병상: {{ h["hvec"] }}</div>
-    <div>🧠 신경중환자: {{ h["hvcc"] }}</div>
-    <div>👶 신생아중환자: {{ h["hvncc"] }}</div>
-    <div>🏥 일반중환자: {{ h["hvicc"] }}</div>
+    <div>🛏 일반 입원실: {{ h["hvgc"] }}</div>
+    <div>👶 신생아중환자실: {{ h["hvncc"] }}</div>
+    <div>🏥 일반중환자실: {{ h["hvicc"] }}</div>
   </div>
 </div>
 {% endfor %}

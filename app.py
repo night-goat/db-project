@@ -1,5 +1,11 @@
 from flask import Flask, render_template, request
 import sqlite3
+from seed_api import update_emergency_data
+
+# 서버 시작 시 데이터 갱신
+print("🔄 응급실 데이터 갱신 중...")
+update_emergency_data()
+print("✅ 응급실 데이터 갱신 완료")
 
 app = Flask(__name__)
 
@@ -14,7 +20,6 @@ def get_db():
 
 @app.route("/")
 def index():
-    # 검색 페이지
     return render_template("search.html")
 
 
@@ -29,25 +34,21 @@ def search():
     # 전체 선택
     if stage2 == "" or stage2 is None:
         cur.execute("""
-        SELECT H.dutyname, H.dutytel3,
-               B.hvec, B.hvidate,
-               S.hvcc, S.hvncc, S.hvicc
-        FROM HOSPITAL H, BedStatus B, SevereCare S
-        WHERE H.hpid = B.hpid
-          AND H.hpid = S.hpid
-          AND H.stage1 = ?
+            SELECT H.dutyname, H.dutytel3,
+                   B.hvec, B.hvgc, B.hvncc, B.hvicc, B.hvidate
+            FROM HOSPITAL H, BedStatus B
+            WHERE H.hpid = B.hpid
+              AND H.stage1 = ?
         """, (stage1,))
     else:
         # 특정 구 선택
         cur.execute("""
-        SELECT H.dutyname, H.dutytel3,
-               B.hvec, B.hvidate,
-               S.hvcc, S.hvncc, S.hvicc
-        FROM HOSPITAL H, BedStatus B, SevereCare S
-        WHERE H.hpid = B.hpid
-          AND H.hpid = S.hpid
-          AND H.stage1 = ?
-          AND H.stage2 = ?
+            SELECT H.dutyname, H.dutytel3,
+                   B.hvec, B.hvgc, B.hvncc, B.hvicc, B.hvidate
+            FROM HOSPITAL H, BedStatus B
+            WHERE H.hpid = B.hpid
+              AND H.stage1 = ?
+              AND H.stage2 = ?
         """, (stage1, stage2))
 
     hospitals = cur.fetchall()

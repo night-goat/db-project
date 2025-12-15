@@ -9,15 +9,11 @@ CREATE TABLE HOSPITAL(
 
 CREATE TABLE BedStatus (
     hpid TEXT PRIMARY KEY,
-    hvec INTEGER,
+    hvec INTEGER,   -- 응급실 병상
+    hvgc INTEGER,   -- 일반 입원실
+    hvncc INTEGER,  -- 신생아 중환자실
+    hvicc INTEGER,  -- 일반 중환자실
     hvidate TEXT,
-    FOREIGN KEY (hpid) REFERENCES Hospital(hpid)
+    FOREIGN KEY (hpid) REFERENCES HOSPITAL(hpid)
 );
 
-CREATE TABLE SevereCare (
-    hpid TEXT PRIMARY KEY,
-    hvcc INTEGER,
-    hvncc INTEGER,
-    hvicc INTEGER,
-    FOREIGN KEY (hpid) REFERENCES Hospital(hpid)
-);
